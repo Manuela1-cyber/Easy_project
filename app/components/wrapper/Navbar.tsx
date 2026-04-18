@@ -8,7 +8,9 @@ const Navbar = () => {
     const pathname = usePathname();
 
     const isActive = (path: string) => {
-        return pathname === path ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500 hover:text-purple-600";
+        return pathname === path || pathname.startsWith(`${path}/`)
+            ? "text-purple-600 border-b-2 border-purple-600"
+            : "text-gray-500 hover:text-purple-600";
     };
 
     const isHomePage = pathname === "/";
@@ -58,6 +60,13 @@ const Navbar = () => {
                     >
                         <FileText className="w-4 h-4" />
                         Factures
+                    </Link>
+                    <Link
+                        href="/espace-locataire"
+                        className={`pb-3 text-sm font-medium flex items-center gap-2 ${isActive("/espace-locataire")}`}
+                    >
+                        <User className="w-4 h-4" />
+                        Espace locataire
                     </Link>
                 </nav>
             )}

@@ -11,7 +11,7 @@ export default function Home() {
         <div className="container mx-auto max-w-6xl flex flex-col md:flex-row items-center gap-12">
           
           <div className="flex-1 space-y-6 text-center md:text-left">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold font-[Geist] text-gray-900 leading-tight">
               La gestion de vos paiements <span className="text-[#9b5cff]">simplifiée</span>
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto md:mx-0">
@@ -19,14 +19,14 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
               <Link
-                href="/dashboard"
+                href="/inscription"
                 className="w-full sm:w-auto px-8 py-3 bg-[#9b5cff] text-white font-semibold rounded-full hover:bg-[#8646ff] transition-colors flex items-center justify-center gap-2 shadow-md shadow-[#9b5cff]/30"
               >
                 S'inscrire
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/dashboard"
+                href="/connexion"
                 className="w-full sm:w-auto px-8 py-3 bg-white text-[#9b5cff] border border-[#9b5cff] font-semibold rounded-full hover:bg-[#f4ecff] transition-colors"
               >
                 Se connecter
@@ -67,7 +67,7 @@ export default function Home() {
               {
                 icon: <CheckCircle className="w-8 h-8 text-[#9b5cff]" />,
                 title: "Suivi en temps réel",
-                desc: "Gardez un œil sur l'état de vos paiements et vos locataires à tout moment."
+                desc: "Gardez un œil sur l&apos;état de vos paiements et vos locataires à tout moment."
               },
               {
                 icon: <Shield className="w-8 h-8 text-[#9b5cff]" />,

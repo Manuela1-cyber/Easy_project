@@ -22,10 +22,10 @@ export default function CreateInvoiceForm() {
                         </label>
                         <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                             <option value="">Sélectionner un résident...</option>
-                            {/* Tes options ici */}
+                         
                         </select>
                     </div>
-                    {/* Sélection Appartement */}
+                   
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                             <Home className="w-4 h-4 text-gray-400" />
@@ -39,12 +39,12 @@ export default function CreateInvoiceForm() {
                         />
                     </div>
                 </div>
-                {/* Section 2: Dates */}
+               
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-gray-400" />
-                            Date d'émission
+                            Date d&apos;émission
                         </label>
                         <input
                             type="date"
@@ -54,7 +54,7 @@ export default function CreateInvoiceForm() {
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-gray-400" />
-                            Date d'échéance
+                            Date d&apos;échéance
                         </label>
                         <input
                             type="date"
@@ -63,7 +63,7 @@ export default function CreateInvoiceForm() {
                     </div>
                 </div>
                 <div className="border-t border-gray-100 my-4"></div>
-                {/* Section 3: Détails Facturation */}
+                
                 <div className="space-y-4">
                     <div className="flex items-center gap-4 mb-2">
                         <label className="text-sm font-medium text-gray-700">Type de facturation</label>
@@ -79,7 +79,7 @@ export default function CreateInvoiceForm() {
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Montant (calculé ou saisi) */}
+                        
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700">Montant Total (FCFA)</label>
                             <div className="relative">
@@ -91,7 +91,7 @@ export default function CreateInvoiceForm() {
                                 <span className="absolute right-3 top-2 text-gray-400 text-sm">FCFA</span>
                             </div>
                         </div>
-                        {/* Champ conditionnel pour consommation (optionnel visuellement pour l'instant) */}
+                   
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                 <RefreshCcw className="w-4 h-4 text-gray-400" />
@@ -108,7 +108,7 @@ export default function CreateInvoiceForm() {
                         </div>
                     </div>
                 </div>
-                {/* Boutons d'action */}
+
                 <div className="pt-4 flex items-center justify-end gap-3">
                     <button
                         type="button"
