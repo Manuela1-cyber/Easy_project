@@ -1,3 +1,4 @@
+import { apiCall } from "@/lib/api/client";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://192.168.1.126:8081/api";
@@ -94,120 +95,128 @@ export type AppartementPayload = {
 };
 
 export function getFactures(): Promise<Facture[]> {
-  return request<Facture[]>("/factures");
+  return apiCall<Facture[]>("/factures");
+}
+
+export function getFactureById(factureId: string): Promise<Facture> {
+  return request<Facture>(`/factures/${factureId}`);
+}
+
+export function getFactureForPortal(factureId: string, locataireId: string): Promise<Facture> {
+  return request<Facture>(`/factures/${factureId}/portal?locataireId=${locataireId}`);
 }
 
 export function createFacture(facture: Omit<Facture, "id">): Promise<Facture> {
-  return request<Facture>("/factures", {
+  return apiCall<Facture>("/factures", {
     method: "POST",
     body: JSON.stringify(facture),
   });
 }
 
 export function updateFacture(id: string, facture: Omit<Facture, "id">): Promise<Facture> {
-  return request<Facture>(`/factures/${id}`, {
+  return apiCall<Facture>(`/factures/${id}`, {
     method: "PUT",
     body: JSON.stringify(facture),
   });
 }
 
 export function deleteFacture(id: string): Promise<void> {
-  return request<void>(`/factures/${id}`, {
+  return apiCall<void>(`/factures/${id}`, {
     method: "DELETE",
   });
 }
 
 export function sendFactureByEmail(id: string): Promise<void> {
-  return request<void>(`/factures/${id}/send-email`, {
+  return apiCall<void>(`/factures/${id}/send-email`, {
     method: "POST",
   });
 }
 
 export function getLocataires(): Promise<Locataire[]> {
-  return request<Locataire[]>("/locataires");
+  return apiCall<Locataire[]>("/locataires");
 }
 
 export function createLocataire(locataire: Omit<Locataire, "id">): Promise<Locataire> {
-  return request<Locataire>("/locataires", {
+  return apiCall<Locataire>("/locataires", {
     method: "POST",
     body: JSON.stringify(locataire),
   });
 }
 
 export function updateLocataire(id: string, locataire: Omit<Locataire, "id">): Promise<Locataire> {
-  return request<Locataire>(`/locataires/${id}`, {
+  return apiCall<Locataire>(`/locataires/${id}`, {
     method: "PUT",
     body: JSON.stringify(locataire),
   });
 }
 
 export function deleteLocataire(id: string): Promise<void> {
-  return request<void>(`/locataires/${id}`, {
+  return apiCall<void>(`/locataires/${id}`, {
     method: "DELETE",
   });
 }
 
 export function getAppartements(): Promise<Appartement[]> {
-  return request<Appartement[]>("/appartements");
+  return apiCall<Appartement[]>("/appartements");
 }
 
 export function createAppartement(appartement: AppartementPayload): Promise<Appartement> {
-  return request<Appartement>("/appartements", {
+  return apiCall<Appartement>("/appartements", {
     method: "POST",
     body: JSON.stringify(appartement),
   });
 }
 
 export function updateAppartement(id: string, appartement: AppartementPayload): Promise<Appartement> {
-  return request<Appartement>(`/appartements/${id}`, {
+  return apiCall<Appartement>(`/appartements/${id}`, {
     method: "PUT",
     body: JSON.stringify(appartement),
   });
 }
 
 export function deleteAppartement(id: string): Promise<void> {
-  return request<void>(`/appartements/${id}`, {
+  return apiCall<void>(`/appartements/${id}`, {
     method: "DELETE",
   });
 }
 
 export function getProprietes(): Promise<Propriete[]> {
-  return request<Propriete[]>("/proprietes");
+  return apiCall<Propriete[]>("/proprietes");
 }
 
 export function createPropriete(propriete: ProprieteCreatePayload): Promise<Propriete> {
-  return request<Propriete>("/proprietes", {
+  return apiCall<Propriete>("/proprietes", {
     method: "POST",
     body: JSON.stringify(propriete),
   });
 }
 
 export function updatePropriete(id: string, propriete: ProprieteUpdatePayload): Promise<Propriete> {
-  return request<Propriete>(`/proprietes/${id}`, {
+  return apiCall<Propriete>(`/proprietes/${id}`, {
     method: "PUT",
     body: JSON.stringify(propriete),
   });
 }
 
 export function deletePropriete(id: string): Promise<void> {
-  return request<void>(`/proprietes/${id}`, {
+  return apiCall<void>(`/proprietes/${id}`, {
     method: "DELETE",
   });
 }
 
 export function getAssignations(): Promise<Assigner[]> {
-  return request<Assigner[]>("/assignations");
+  return apiCall<Assigner[]>("/assignations");
 }
 
 export function createAssigner(assignerId: string, locataireId: string, appartementId: string): Promise<Assigner> {
-  return request<Assigner>("/assignations", {
+  return apiCall<Assigner>("/assignations", {
     method: "POST",
     body: JSON.stringify({ locataireId, appartementId }),
   });
 }
 
 export function exitAssigner(id: string, exitAt: string): Promise<Assigner> {
-  return request<Assigner>(`/assignations/${id}/exit`, {
+  return apiCall<Assigner>(`/assignations/${id}/exit`, {
     method: "PUT",
     body: JSON.stringify({ exitAt }),
   });
@@ -217,5 +226,5 @@ export function buildLocatairePortalPath(locataireId: string): string {
   return `/espace-locataire/${locataireId}`;
 }
 export function buildLocatairePortalPath1(locataireId: string): string {
-  return `/fact/${locataireId}`;
+  return `/espace-locataire/${locataireId}`;
 }

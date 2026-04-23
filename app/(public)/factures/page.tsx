@@ -141,6 +141,8 @@ export default function Factures() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
 
   const assignerOptions = useMemo<AssignerOption[]>(() => {
     const locById = new Map(locataires.map((l) => [l.id, l]));
@@ -181,7 +183,7 @@ export default function Factures() {
 
   const variableTableAssigners = useMemo(
     () => {
-      let filtered = assignerOptions.filter((assigner) => {
+      const filtered = assignerOptions.filter((assigner) => {
         if (proprieteId && assigner.proprieteId !== proprieteId) return false;
         // Only show assigners that have at least one VARIABLE facture
         const hasVariableFacture = factures.some(
@@ -261,7 +263,13 @@ export default function Factures() {
       ? filteredFactures.filter((f) => getMonthKey(f.issuedAt) === filterMonth)
       : filteredFactures;
 
-    return byMonth.map((f) => {
+    return byMonth
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime()
+      )
+      .map((f) => {
       const assigner = assignerById.get(f.assignerId);
       const prop = propById.get(assigner?.proprieteId ?? "");
 
@@ -273,6 +281,26 @@ export default function Factures() {
       };
     });
   }, [filteredFactures, assignerOptions, proprietes, filterMonth]);
+
+  const totalPages = Math.max(1, Math.ceil(invoicesWithNames.length / itemsPerPage));
+  const paginatedInvoices = useMemo(
+    () =>
+      invoicesWithNames.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      ),
+    [invoicesWithNames, currentPage]
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterMonth, filterStatut, filterType, filterText, proprieteId]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const loadAll = async () => {
     setLoading(true);
@@ -1225,7 +1253,7 @@ export default function Factures() {
 
         </div>
 
-        {filterMonth ? (
+        {invoicesWithNames.length > 0 ? (
           <>
             <div className="hidden md:grid grid-cols-6 text-xs font-semibold text-gray-400 px-4 pb-2">
 
@@ -1240,7 +1268,7 @@ export default function Factures() {
 
             <div className="space-y-3">
 
-              {invoicesWithNames.map((invoice) => (
+              {paginatedInvoices.map((invoice) => (
 
                 <div
                   key={invoice.id}
@@ -1364,15 +1392,37 @@ export default function Factures() {
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
             <p className="text-sm font-medium text-gray-700">
-              Sélectionnez un mois dans la grille pour afficher les factures associées.
+              Aucune facture ne correspond aux filtres sélectionnés.
             </p>
           </div>
         )}
 
-        {filterMonth && (
-          <button className="mt-4 w-full rounded-full border border-dashed border-slate-200 py-2 text-sm font-medium text-gray-500 hover:bg-slate-50 print:hidden">
-            Charger plus
-          </button>
+        {invoicesWithNames.length > 0 && (
+          <div className="mt-5 flex items-center justify-between gap-3 print:hidden">
+            <p className="text-sm text-gray-500">
+              Page {currentPage} sur {totalPages} - {invoicesWithNames.length} facture(s)
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Précédent
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages, page + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
         )}
 
       </section>

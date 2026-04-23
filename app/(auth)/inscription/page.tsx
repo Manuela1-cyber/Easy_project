@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
+import { getAuthToken, register, saveAuthToken, login } from "@/lib/api/auth";
 
 export default function InscriptionPage() {
   const router = useRouter();
@@ -25,6 +26,16 @@ export default function InscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(true);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token) {
+      router.replace("/dashboard");
+      return;
+    }
+    setIsCheckingSession(false);
+  }, [router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -48,17 +59,38 @@ export default function InscriptionPage() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Créer le compte
+      await register({
+        name: fullName.trim(),
+        email: email.trim(),
+        password,
+      });
+      
+      // Se connecter automatiquement après inscription
+      const loginResponse = await login({
+        email: email.trim(),
+        password,
+      });
+      
+      // Sauvegarder le token
+      saveAuthToken(loginResponse.accessToken);
+      
+      
       router.push("/dashboard");
-    } catch {
-      setError("Impossible de creer le compte pour le moment.");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Impossible de créer le compte pour le moment.";
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isCheckingSession) {
+    return null;
+  }
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f5efe8]">
+    <div className="relative h-screen overflow-hidden bg-[#f5efe8]">
       <Image
         src="/images.jpeg"
         alt=""
@@ -68,12 +100,12 @@ export default function InscriptionPage() {
       />
 
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(30,16,38,0.9),rgba(131,82,165,0.6),rgba(237,127,61,0.3))]" />
-      <div className="absolute left-[-6rem] top-[-5rem] h-56 w-56 rounded-full bg-amber-300/20 blur-3xl" />
+      <div className="absolute '-left-[-6rem]' top-[-5rem] h-56 w-56 rounded-full bg-amber-300/20 blur-3xl" />
       <div className="absolute bottom-[-8rem] right-[-5rem] h-80 w-80 rounded-full bg-fuchsia-300/20 blur-3xl" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid w-full max-w-5xl overflow-hidden rounded-[36px] border border-white/25 bg-white/12 shadow-[0_24px_80px_rgba(15,23,42,0.32)] backdrop-blur-xl lg:grid-cols-[0.95fr_1.05fr]">
-          <section className="bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,244,252,0.9))] p-6 sm:p-8 lg:p-10">
+      <div className="relative z-10 mx-auto flex h-full max-w-6xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
+        <div className="grid h-full w-full max-w-5xl overflow-hidden rounded-[36px] border border-white/25 bg-white/12 shadow-[0_24px_80px_rgba(15,23,42,0.32)] backdrop-blur-xl lg:grid-cols-[0.95fr_1.05fr]">
+          <section className="overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,244,252,0.9))] p-5 sm:p-7 lg:p-8">
             <div className="mx-auto max-w-md">
               <div className="flex items-center justify-between">
                 <div className="h-14 w-14 overflow-hidden rounded-[20px] border border-[#8352A5]/15 shadow-sm">
@@ -92,7 +124,7 @@ export default function InscriptionPage() {
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6">
                 <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#8352A5]/70">
                   Inscription
                 </p>
@@ -100,12 +132,12 @@ export default function InscriptionPage() {
                   Creez votre espace de gestion
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Mettez en place votre compte pour commencer a suivre proprietes,
-                  locataires et paiements dans un meme espace.
+                  Mettez en place votre compte pour commencer à suivre proprietes,
+                  locataires et paiements dans un même espace.
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-700">
                     Nom complet
@@ -209,13 +241,13 @@ export default function InscriptionPage() {
                   disabled={isSubmitting}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#8352A5] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(131,82,165,0.28)] transition hover:bg-[#734694] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  <span>{isSubmitting ? "Creation..." : "Creer mon compte"}</span>
+                  <span>{isSubmitting ? "Creation..." : "Créer mon compte"}</span>
                   {!isSubmitting && <ArrowRight className="h-4 w-4" />}
                 </button>
               </form>
 
-              <p className="mt-8 text-center text-sm text-slate-600">
-                Vous avez deja un compte ?{" "}
+              <p className="mt-6 text-center text-sm text-slate-600">
+                Vous avez déja un compte ?{" "}
                 <Link
                   href="/connexion"
                   className="font-semibold text-[#8352A5] transition hover:text-[#6b3f8f]"
@@ -226,26 +258,14 @@ export default function InscriptionPage() {
             </div>
           </section>
 
-          <section className="hidden flex-col justify-between bg-[linear-gradient(160deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04))] p-10 text-white lg:flex">
-            <div>
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-               
-              </div>
-
-              
-
-            </div>
-
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-white/15 bg-white/10 p-5">
-                
-              </div>
-
-              <div className="rounded-3xl border border-white/15 bg-white/10 p-5">
-                
-              </div>
-            </div>
+          <section className="relative hidden h-full overflow-hidden lg:block">
+            <Image
+              src="/images.jpeg"
+              alt="Illustration d'inscription"
+              fill
+              priority
+              className="object-cover"
+            />
           </section>
         </div>
       </div>

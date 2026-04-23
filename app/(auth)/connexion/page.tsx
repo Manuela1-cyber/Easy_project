@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
+import { getAuthToken, login, saveAuthToken } from "@/lib/api/auth";
 
 export default function ConnexionPage() {
   const router = useRouter();
@@ -14,6 +15,16 @@ export default function ConnexionPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token) {
+      router.replace("/dashboard");
+      return;
+    }
+    setIsCheckingSession(false);
+  }, [router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,17 +38,30 @@ export default function ConnexionPage() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await login({
+        email: email.trim(),
+        password,
+      });
+      
+      // Sauvegarder le token
+      saveAuthToken(response.accessToken);
+      
+      // Rediriger vers le dashboard
       router.push("/dashboard");
-    } catch {
-      setError("Impossible de se connecter pour le moment.");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Impossible de se connecter pour le moment.";
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isCheckingSession) {
+    return null;
+  }
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f5efe8]">
+     <div className="relative h-screen overflow-hidden bg-[#f5efe8]">
       <Image
         src="/images.jpeg"
         alt=""
@@ -47,40 +71,22 @@ export default function ConnexionPage() {
       />
 
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(22,14,34,0.9),rgba(130,84,165,0.62),rgba(244,143,64,0.32))]" />
-      <div className="absolute left-[-6rem] top-[-5rem] h-56 w-56 rounded-full bg-orange-300/25 blur-3xl" />
+      <div className="absolute 'left-[-6rem]' top-[-5rem] h-56 w-56 rounded-full bg-orange-300/25 blur-3xl" />
       <div className="absolute bottom-[-7rem] right-[-4rem] h-72 w-72 rounded-full bg-violet-300/25 blur-3xl" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid w-full max-w-5xl overflow-hidden rounded-[36px] border border-white/25 bg-white/12 shadow-[0_24px_80px_rgba(15,23,42,0.32)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="hidden flex-col justify-between bg-[linear-gradient(160deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04))] p-10 text-white lg:flex">
-            <div>
-              
-              {/* <div className="mt-8 h-20 w-20 overflow-hidden rounded-[28px] border border-white/20 bg-white/15 p-2 shadow-lg">
-                <Image
-                  src="/logo.jpeg"
-                  alt="Logo"
-                  width={400}
-                  height={400}
-                  className="h-full w-full rounded-[20px] object-cover"
-                />
-              </div> */}
-              <div className="relative min-h-screen overflow-hidden rounded-[28px] bg-[#f5efe8]">
-               <Image
-               src="/images.jpeg"
-               alt=""
-               fill
-               priority
-               className="object-cover"
-               />
-               </div>
-
-              
-            </div>
-
-            
+      <div className="relative z-10 mx-auto flex h-full max-w-6xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
+        <div className="grid h-full w-full max-w-5xl overflow-hidden rounded-[36px] border border-white/25 bg-white/12 shadow-[0_24px_80px_rgba(15,23,42,0.32)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
+          <section className="relative hidden h-full overflow-hidden lg:block">
+            <Image
+              src="/images.jpeg"
+              alt="Illustration de connexion"
+              fill
+              priority
+              className="object-cover"
+            />
           </section>
 
-          <section className="bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,244,252,0.9))] p-6 sm:p-8 lg:p-10">
+          <section className="overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,244,252,0.9))] p-5 sm:p-7 lg:p-8">
             <div className="mx-auto max-w-md">
               <div className="flex items-center justify-between">
                 <div className="h-14 w-14 overflow-hidden rounded-[20px] border border-[#8352A5]/15 shadow-sm lg:hidden">
@@ -99,7 +105,7 @@ export default function ConnexionPage() {
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6">
                 <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#8352A5]/70">
                   Connexion
                 </p>
@@ -107,11 +113,11 @@ export default function ConnexionPage() {
                   Heureux de vous revoir
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Saisissez vos identifiants pour acceder a votre tableau de bord.
+                  Saisissez vos identifiants pour accéder à votre tableau de bord.
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-700">
                     Adresse email
@@ -174,7 +180,7 @@ export default function ConnexionPage() {
                   </label>
 
                   <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-                    Acces rapide
+                    Accès rapide
                   </span>
                 </div>
 
@@ -194,13 +200,13 @@ export default function ConnexionPage() {
                 </button>
               </form>
 
-              <p className="mt-8 text-center text-sm text-slate-600">
+              <p className="mt-6 text-center text-sm text-slate-600">
                 Vous n&apos;avez pas encore de compte ?{" "}
                 <Link
                   href="/inscription"
                   className="font-semibold text-[#8352A5] transition hover:text-[#6b3f8f]"
                 >
-                  Creer un compte
+                  Créer un compte
                 </Link>
               </p>
             </div>

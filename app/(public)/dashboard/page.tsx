@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {ArrowRight,Banknote,Bell,Building,Check,FileText,Hourglass,TriangleAlert,Users} from "lucide-react";
 import {Appartement,Assigner,Facture,Locataire,Propriete,getAppartements,getAssignations,getFactures,getLocataires,getProprietes} from "../../lib/api/facture";
+import { getAuthToken } from "@/lib/api/auth";
 
 function formatAmount(amount: number) {
   return `${amount.toLocaleString()} F`;
@@ -81,6 +83,7 @@ type InvoiceRow = Facture & {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
   const [factures, setFactures] = useState<Facture[]>([]);
   const [locataires, setLocataires] = useState<Locataire[]>([]);
   const [appartements, setAppartements] = useState<Appartement[]>([]);
@@ -88,8 +91,23 @@ export default function Dashboard() {
   const [assignations, setAssignations] = useState<Assigner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      router.replace("/connexion");
+      return;
+    }
+
+    setIsAuthChecked(true);
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthChecked) {
+      return;
+    }
+
     const loadDashboard = async () => {
       setLoading(true);
       setError(null);
@@ -138,7 +156,7 @@ export default function Dashboard() {
     };
 
     loadDashboard();
-  }, []);
+  }, [isAuthChecked]);
 
   const dashboardData = useMemo(() => {
     const assignerById = new Map(
@@ -280,6 +298,10 @@ export default function Dashboard() {
       iconClassName: "bg-orange-100 text-orange-600",
     },
   ];
+
+  if (!isAuthChecked) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
